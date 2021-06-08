@@ -29,6 +29,7 @@ while end_flag is True:
         continue
 
     sys.stderr.write(f'\r\033[KProgress: {int(video.get(cv2.CAP_PROP_POS_FRAMES))} / {int(video.get(cv2.CAP_PROP_FRAME_COUNT))} frames')
+    sys.stderr.flush()
 
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     ret = {}
