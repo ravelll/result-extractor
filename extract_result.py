@@ -28,6 +28,8 @@ while end_flag is True:
     if video_cursor % 60 != 0:
         continue
 
+    sys.stderr.write(f'\r\033[KProgress: {int(video.get(cv2.CAP_PROP_POS_FRAMES))} / {int(video.get(cv2.CAP_PROP_FRAME_COUNT))} frames')
+
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
     ret = {}
 
@@ -38,7 +40,6 @@ while end_flag is True:
     matches = bf.match(base_des, comparing_des)
     dist = [m.distance for m in matches]
     matchness = sum(dist) / len(dist)
-    # print(f'matchness: {matchness}')
 
     if matchness < 70.0:
         cv2.imwrite(f'{dir_name}/{result_number}.png', frame)
