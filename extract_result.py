@@ -5,9 +5,10 @@ import os
 import subprocess
 from multiprocessing import Process
 
-def process_video(process_index, output_dir):
+
+def process_video(process_index, output_dir, original_video_frame_count):
     video_cursor = 0
-    spilt_video = cv2.VideoCapture(f'./.video_tmp/{process_index}.mp4')
+    split_video = cv2.VideoCapture(f'./.video_tmp/{process_index}.mp4')
 
     detector = cv2.ORB_create()
     base_result = cv2.imread('./base_result.png', cv2.IMREAD_GRAYSCALE)
@@ -19,12 +20,12 @@ def process_video(process_index, output_dir):
 
     while end_flag is True:
         video_cursor += 1
-        end_flag, frame = spilt_video.read()
+        end_flag, frame = split_video.read()
 
         if video_cursor % 60 != 0:
             continue
 
-        sys.stderr.write(f'\r\033[KProgress: {int(spilt_video.get(cv2.CAP_PROP_POS_FRAMES))} / {int(spilt_video.get(cv2.CAP_PROP_FRAME_COUNT))} frames')
+        sys.stderr.write(f'\r\033[KProgress: {int(split_video.get(cv2.CAP_PROP_POS_FRAMES))} / {int(split_video.get(cv2.CAP_PROP_FRAME_COUNT))} frames')
         sys.stderr.flush()
 
         bf = cv2.BFMatcher(cv2.NORM_HAMMING)
@@ -39,12 +40,15 @@ def process_video(process_index, output_dir):
         matchness = sum(dist) / len(dist)
 
         if matchness < 70.0:
-            cv2.imwrite(f'{output_dir}/{process_index}_{result_number}.png',
+            current_sec = (int(split_video.get(cv2.CAP_PROP_POS_FRAMES)) + process_index * (original_video_frame_count // 3)) // 60
+            cv2.imwrite(
+                    f'{output_dir}/{int(current_sec // 60 // 60)}_{int(current_sec // 60 % 60)}_{int(current_sec % 60)}.png',
                     frame)
             # Skip frames for 1.5min
             for v in range(60 * 90):
-                spilt_video.grab()
+                split_video.grab()
             result_number += 1
+    split_video.release()
 
 
 if __name__ == '__main__':
@@ -75,7 +79,10 @@ if __name__ == '__main__':
     for i in range(3):
         p = Process(
                 target=process_video,
-                kwargs={'process_index': i, 'output_dir': dir_name})
+                kwargs={'process_index': i,
+                        'output_dir': dir_name,
+                        'original_video_frame_count': total_frame
+                        })
         p.start()
         process_list.append(p)
 
