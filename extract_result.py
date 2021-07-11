@@ -64,15 +64,15 @@ if __name__ == '__main__':
     # Split the video to process concurrently
     os.mkdir('./.video_tmp')
     total_frame = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    subprocess.run(['ffmpeg', '-i', sys.argv[1],
+    subprocess.run(['ffmpeg', '-i', sys.argv[1], '-v', 'quiet',
             '-ss', '0',
             '-t', str(total_frame // 60 // 3 - 1),
             '-c', 'copy', './.video_tmp/0.mp4'])
-    subprocess.run(['ffmpeg', '-i', sys.argv[1],
+    subprocess.run(['ffmpeg', '-i', sys.argv[1], '-v', 'quiet',
             '-ss', str(total_frame // 60 // 3),
             '-t', str(total_frame // 60 // 3 - 1),
             '-c', 'copy', './.video_tmp/1.mp4'])
-    subprocess.run(['ffmpeg', '-i', sys.argv[1],
+    subprocess.run(['ffmpeg', '-i', sys.argv[1], '-v', 'quiet',
             '-ss', str(total_frame // 60 // 3 * 2),
             '-c', 'copy', './.video_tmp/2.mp4'])
     process_list = []
